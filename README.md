@@ -11,6 +11,9 @@ needs feedparser to actually read and parse rss feeds
 `pip install feedparser`
 
 ## Usage:
+
+Please run `podcatcher --update-cache` the first time you use podcatcher to get a local version of the rss feeds
+
 ```
 PodCatcher [-h] [--list | --download | --update-cache]
                   [--all | --latest] [--regex REGEX] [--after AFTER]
