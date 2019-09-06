@@ -1,7 +1,7 @@
 # podCatcher
 Cute little script to parse podcasts rss feeds and download them for offline use.
 
-## Requirements
+## Requirements:
 needs `aria2` to download podcasts, you can get it from [here](https://aria2.github.io/)
 
 needs pandas library for quick filtering
