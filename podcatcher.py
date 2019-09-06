@@ -41,14 +41,42 @@ class podCatcher:
     USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.230 Safari/537.36"
 
     def __init__(self):
+        # TODO : more download methods
         parser = argparse.ArgumentParser(
-            prog='PodCatcher', description='List and download podcasts')
+            prog='PodCatcher',
+            description='List and download podcasts',
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog="""Examples:
+    # update local versions of remote feeds
+    podcatcher --update-cache
+
+    # list the latest episode for all podcasts
+    podcatcher --latest
+
+    # list the latest episode for podcast1 and podcast2
+    podcatcher --latest podcast1 podcast2
+
+    # list episodes from all podcasts after 01-01-2019
+    podcatcher --after 01-01-2019
+
+    # download episodes published after 01-01-2019 from podcast1 and podcast2
+    podcatcher --download --after 01-01-2019 podcast1 podcast2
+
+    # download episode 5 from podcast3
+    podcatcher --download --exact-episode 5 podcast3
+
+    # download the first ten episodes from podcast4
+    podcatcher --download --before-episode 10 podcast4
+
+    # list all episodes from all podcasts matching the regex '.*apple.*'
+    podcatcher --list --regex '.*apple.*'
+            """)
         self.parser = parser
 
         # self explanatory options
         self.actions = ['list', 'download', 'update-cache']  # TODO play action
         # TODO option to filter already played episodes
-        self.podcasts = ['all', 'latest']
+        self.podcasts = ['all', 'latest']  # ,'unplayed']
 
         # make this options mutually exclusive
         command_group = parser.add_mutually_exclusive_group()
