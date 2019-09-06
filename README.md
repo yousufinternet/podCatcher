@@ -5,7 +5,7 @@ needs `aria2` to download podcasts, you can get it from [here](https://aria2.git
 
 Usage: 
 ```
-usage: PodCatcher [-h] [--list | --download | --update-cache]
+PodCatcher [-h] [--list | --download | --update-cache]
 [--all | --latest] [--regex REGEX] [--after AFTER]
 [--before BEFORE] [--exact-episode EXACT_EPISODE]
 [--after-episode AFTER_EPISODE]
