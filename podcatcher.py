@@ -8,7 +8,6 @@ import feedparser
 import subprocess
 import argparse
 import urllib
-import pipes
 import os
 import re
 
@@ -39,8 +38,8 @@ class podCatcher:
     # download episodes published after 01-01-2019 from podcast1 and podcast2
     podcatcher --download --after 01-01-2019 podcast1 podcast2
 
-    # download episode 5 from podcast3
-    podcatcher --download --exact-episode 5 podcast3
+    # download episodes 5, 6, 7 from podcast3
+    podcatcher --download --exact-episodes 5,6,7 podcast3
 
     # download the first ten episodes from podcast4
     podcatcher --download --before-episode 10 podcast4
@@ -72,8 +71,10 @@ class podCatcher:
         parser.add_argument(
             '--before', type=lambda x: datetime.strptime(x, '%d-%m-%Y').date(),
             help='Episodes before a certain date only format:d-m-Y')
-        parser.add_argument('--exact-episode', type=int,
-                            help='episode number you would like to download')
+        parser.add_argument('--exact-episodes',
+                            type=lambda x: [int(n) for n in x.split(',')],
+                            help='episode number/s you would like to download,'
+                            ' comma separated list can be supplied too')
         parser.add_argument('--after-episode', type=int,
                             help='only download episodes carrying a number'
                             ' larger than the provided')
