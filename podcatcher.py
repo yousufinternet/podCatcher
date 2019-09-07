@@ -13,31 +13,8 @@ import os
 import re
 
 
-# def single_download(url, path=os.path.expanduser('~/Downloads'),
-#                     name='noname', ext='.mp3', split=5):
-#     '''
-#     Arguments:
-#     url: url to the file you want to download
-#     path: path to where the downloaded files will be stored
-#     name: name to save the file with
-#     ext: extension of the downloaded file
-#     split: threading option in aria2 download client for faster downloads
-#     '''
-#     path = pipes.quote(path)
-#     name = pipes.quote(name)
-#     cmd = (f'aria2c --max-connection-per-server={split} -x 1 -j 3 -c -V -s {split} -d '
-#            f'{path} -o {name+ext} {url}')
-#     subprocess.Popen(cmd, shell=True)
-#     # aria2_running = subprocess.Popen(
-#     #     f"ps -u {os.getenv('USER')} | grep aria", shell=True, text=True,
-#     #     stdout=subprocess.PIPE).communicate()[0] != ''
-#     # while aria2_running:
-#     #     aria2_running = subprocess.Popen(
-#     #         f"ps -u {os.getenv('USER')} | grep aria", shell=True, text=True,
-#     #         stdout=subprocess.PIPE).communicate()[0] != ''
-
-
 class podCatcher:
+
     USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.230 Safari/537.36"
 
     def __init__(self):
@@ -258,7 +235,7 @@ class podCatcher:
                     title = row[1].Title
                     url = row[1].Link
                     destination = os.path.expanduser(f'~/Podcasts/{pod_name}')
-                    output_file = f'#{ep_no} {title}-{date.strftime("%d-%m-%Y")}.mp3'.replace(' ', '\\ ')
+                    output_file = f'#{ep_no} {title}-{date.strftime("%d-%m-%Y")}.mp3'
                     urls.append(url)
                     urls.append(f'  dir={destination}')
                     urls.append(f'  out={output_file}')
