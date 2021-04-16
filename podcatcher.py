@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from collections import defaultdict
 from datetime import datetime
@@ -33,13 +33,13 @@ class podCatcher:
     podcatcher --latest podcast1 podcast2
 
     # list episodes from all podcasts after 01-01-2019
-    podcatcher --after 01-01-2019
+    podcatcher --after-date 01-01-2019
 
     # download episodes published after 01-01-2019 from podcast1 and podcast2
-    podcatcher --download --after 01-01-2019 podcast1 podcast2
+    podcatcher --download --after-date 01-01-2019 podcast1 podcast2
 
     # download episodes 5, 6, 7 from podcast3
-    podcatcher --download --exact-episodes 5,6,7 podcast3
+    podcatcher --download --exact-episode 5,6,7 podcast3
 
     # download the first ten episodes from podcast4
     podcatcher --download --before-episode 10 podcast4
@@ -50,7 +50,8 @@ class podCatcher:
         self.parser = parser
 
         # self explanatory options
-        self.actions = ['list', 'download', 'update-cache']  # TODO play action
+        self.actions = ['list', 'download', 'update-cache', 'stream',
+                        'download-n-play', 'enqueue']  # TODO play action
         # TODO option to filter already played episodes
         self.podcasts = ['all', 'latest']  # ,'unplayed']
 
@@ -66,12 +67,12 @@ class podCatcher:
 
         # filters by date
         parser.add_argument(
-            '--after', type=lambda x: datetime.strptime(x, '%d-%m-%Y').date(),
+            '--after-date', type=lambda x: datetime.strptime(x, '%d-%m-%Y').date(),
             help='Episodes after a certain date only format:d-m-Y')
         parser.add_argument(
-            '--before', type=lambda x: datetime.strptime(x, '%d-%m-%Y').date(),
+            '--before-date', type=lambda x: datetime.strptime(x, '%d-%m-%Y').date(),
             help='Episodes before a certain date only format:d-m-Y')
-        parser.add_argument('--exact-episodes',
+        parser.add_argument('--exact-episode',
                             type=lambda x: [int(n) for n in x.split(',')],
                             help='episode number/s you would like to download,'
                             ' comma separated list can be supplied too')
@@ -108,8 +109,8 @@ class podCatcher:
 
         # before should not be before after argument!
         if not any(date is None for date in
-                   (self.args.before, self.args.after)):
-            if self.args.before < self.args.after:
+                   (self.args.before_date, self.args.after_date)):
+            if self.args.before_date < self.args.after_date:
                 self.parser.error("before date can't be before the after date!")
 
         # Errors accompanied with episode flags
@@ -158,18 +159,23 @@ class podCatcher:
         urls_df_fil = self.urls_df[self.urls_df.Name.isin(
             self.args.podcast_names)]
         print('Please wait while feeds are being cached')
-        header = {}
-        header['User-Agent'] = self.USER_AGENT
+        # header = {}
+        header = {'User-Agent': self.USER_AGENT}
+        # header['User-Agent'] = self.USER_AGENT
         for row in urls_df_fil.iterrows():
             pod_name = row[1].Name
             pod_url = row[1].url
-            req = urllib.request.Request(pod_url, headers=header)
-            response = urllib.request.urlopen(req)
-            response_str = response.read().decode('utf-8')
-            response_store_path = os.path.join(
-                os.path.split(self.args.config)[0], 'Cache', pod_name)
-            with open(response_store_path, 'w+') as f_obj:
-                f_obj.write(response_str)
+            print(f'Fetching {pod_name}')
+            try:
+                req = urllib.request.Request(pod_url, headers=header)
+                response = urllib.request.urlopen(req, timeout=60)
+                response_str = response.read().decode('utf-8')
+                response_store_path = os.path.join(
+                    os.path.split(self.args.config)[0], 'Cache', pod_name)
+                with open(response_store_path, 'w+') as f_obj:
+                    f_obj.write(response_str)
+            except Exception:
+                print('Failed!')
 
     def grab_episodes(self):
         '''
@@ -194,7 +200,7 @@ class podCatcher:
 
                 # filter by episode number
                 if self.args.exact_episode is not None:
-                    if ep_no != self.args.exact_episode:
+                    if ep_no not in self.args.exact_episode:
                         continue
                 if self.args.after_episode is not None:
                     if ep_no < self.args.after_episode:
@@ -206,11 +212,11 @@ class podCatcher:
                 # filter episodes by date
                 date = datetime.fromtimestamp(mktime(episode.published_parsed))
                 date = date.date()  # just so our line is shorter than 80 chars
-                if self.args.after is not None:
-                    if date < self.args.after:
+                if self.args.after_date is not None:
+                    if date < self.args.after_date:
                         continue
-                if self.args.before is not None:
-                    if date >= self.args.before:
+                if self.args.before_date is not None:
+                    if date >= self.args.before_date:
                         continue
                 if self.args.regex is not None:
                     if not re.match(self.args.regex, title,
@@ -262,6 +268,17 @@ class podCatcher:
                     url = row[1].Link
                     print(f'Episode #{ep_no}:', date.strftime('%d-%m-%Y'),
                           title)
+        elif self.args.enqueue:
+            for pod_name in self.args.podcast_names:
+                for row in self.results[pod_name].iterrows():
+                    ep_no = row[0]
+                    date = row[1].Date
+                    title = row[1].Title
+                    url = row[1].Link
+                    output_file = f'#{ep_no} {title}-{date.strftime("%d-%m-%Y")}.mp3'
+                    output_file = os.path.expanduser(os.path.join(f'~/Podcasts/{pod_name}', output_file))
+                    with open(os.path.expanduser('~/.local/share/newsboat/queue'), 'a+') as f_obj:
+                        f_obj.write(url + f' "{output_file}"\n')
 
 
 if __name__ == '__main__':
