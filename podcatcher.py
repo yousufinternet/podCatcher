@@ -119,12 +119,12 @@ class podCatcher:
                                      self.args.after_episode))
         any_epflag = any(ep is not None for ep in
                          (self.args.before_episode, self.args.after_episode,
-                          self.args.exact_episode))
+                          self.args.exact_episodes))
         if self.args.latest and any_epflag:
             self.parser.error("Can't use latest flag with any of episode "
                               "range flags")
-        if self.args.exact_episode is not None and either_afterbefore_on:
-            self.parser.error('You can\'t pass exact-episode with either'
+        if self.args.exact_episodes is not None and either_afterbefore_on:
+            self.parser.error('You can\'t pass exact-episodes with either'
                               ' before and after episode flags')
         if all(ep is not None for ep in (self.args.before_episode,
                                          self.args.after_episode)):
@@ -199,8 +199,8 @@ class podCatcher:
                     latest_flag = True
 
                 # filter by episode number
-                if self.args.exact_episode is not None:
-                    if ep_no not in self.args.exact_episode:
+                if self.args.exact_episodes is not None:
+                    if ep_no != self.args.exact_episodes:
                         continue
                 if self.args.after_episode is not None:
                     if ep_no < self.args.after_episode:
